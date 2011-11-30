@@ -39,7 +39,9 @@ Currently it relies on either
 or [WeakMap](http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps)
 being available. If running in NodeJS, you'll need to start node with
 `node --harmony-collections` (and compile node correctly). This also
-limits browser support to Chrome 17 or Firefox 8, or better.
+limits browser support to Chrome 17 or Firefox 8, or better. If using
+Chrome, you'll also need to start it as `google-chrome
+--js-flags="--harmony-collections"`.
 
 This requirement is likely to go away in the future: it is possible to
 achieve the required functionality without using these exotic
