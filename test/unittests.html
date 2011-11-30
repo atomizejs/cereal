@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cereal Unit tests</title>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-git.css" type="text/css" media="screen" />
+<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-git.js"></script>
+
+<script type="text/javascript" src="../lib/cereal.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    function NiceException() {};
+
+    var niceException = new NiceException();
+
+    module("Cereal");
+
+    test("Encoding Primitives",
+         function() {
+             strictEqual(Cereal.stringify(5), JSON.stringify(5), "Simple number");
+             strictEqual(Cereal.stringify(true), JSON.stringify(true), "Simple bool");
+         });
+
+    test("Encoding DAGs",
+         function() {
+             strictEqual(Cereal.stringify({}), JSON.stringify({unseen: 1, object: {}}), "Empty object");
+             strictEqual(Cereal.stringify({a: {}}),
+                         JSON.stringify({unseen: 1,
+                                         object: {a: {unseen: 2,
+                                                      object: {}}}
+                                        }), "Simple nested object");
+             strictEqual(Cereal.stringify({a: {}, b: {}}),
+                         JSON.stringify({unseen: 1,
+                                         object: {a: {unseen: 2,
+                                                      object: {}},
+                                                  b: {unseen: 3,
+                                                      object: {}}}
+                                        }), "Less simple nested object");
+             var x = {};
+             strictEqual(Cereal.stringify({a: x, b: x}),
+                         JSON.stringify({unseen: 1,
+                                         object: {a: {unseen: 2,
+                                                      object: {}},
+                                                  b: {seen: 2}}
+                                        }), "Simplest shared object");
+             x.z = "foo";
+             strictEqual(Cereal.stringify({a: {b: x}, c: x}),
+                         JSON.stringify({unseen: 1,
+                                         object: {a: {unseen: 2,
+                                                      object: {b: {unseen: 3,
+                                                                   object: {z: "foo"}}}
+                                                     },
+                                                  c: {seen: 3}}
+                                        }), "Deeper shared pointer");
+         });
+
+    test("Encoding Cycles",
+         function() {
+             var x, y, z;
+             x = {};
+             x.x = x;
+             strictEqual(Cereal.stringify(x),
+                         JSON.stringify({unseen: 1,
+                                         object: {x: {seen: 1}}}),
+                         "Simplest cycle");
+
+             x = {};  y = {};  z = {};
+             x.a = x; y.a = x; z.a = x;
+             x.b = y; y.b = y; z.b = y;
+             x.c = z; y.c = z; z.c = z;
+             strictEqual(Cereal.stringify(x),
+                         JSON.stringify({unseen: 1,
+                                         object: {a: {seen: 1},
+                                                  b: {unseen: 2,
+                                                      object: {a: {seen: 1},
+                                                               b: {seen: 2},
+                                                               c: {unseen: 3,
+                                                                   object: {a: {seen: 1},
+                                                                            b: {seen: 2},
+                                                                            c: {seen: 3}}}
+                                                              }},
+                                                  c: {seen: 3}}
+                                        }), "Multiple simple cycles");
+
+             x = {a: {b: {c: {}}}};
+             x.b = x;
+             x.a.c = x;
+             x.a.b.d = x;
+             x.a.b.c.d = x;
+             strictEqual(Cereal.stringify(x),
+                         JSON.stringify({unseen: 1,
+                                         object: {a: {unseen: 2,
+                                                      object: {b: {unseen: 3,
+                                                                   object: {c: {unseen: 4,
+                                                                                object: {d: {seen: 1}}},
+                                                                            d: {seen: 1}}},
+                                                               c: {seen: 1}}},
+                                                  b: {seen: 1}}
+                                        }), "Cascading cycles");
+
+         });
+
+    test("Encoding/Decode Primitives",
+         function() {
+             strictEqual(Cereal.parse(Cereal.stringify(5)), 5, "Simple number");
+             strictEqual(Cereal.parse(Cereal.stringify(true)), true, "Simple bool");
+         });
+
+    test("Encoding/Decoding DAGs",
+         function() {
+             deepEqual(Cereal.parse(Cereal.stringify({})), {},
+                       "Empty object");
+             deepEqual(Cereal.parse(Cereal.stringify({a: {}})), {a: {}},
+                       "Simple nested object");
+             deepEqual(Cereal.parse(Cereal.stringify({a: {}, b: {}})), {a: {}, b: {}},
+                       "Less simple nested object");
+             var x = {};
+             deepEqual(Cereal.parse(Cereal.stringify({a: x, b: x})), {a: x, b: x},
+                       "Simplest shared object");
+             x.z = "foo";
+             deepEqual(Cereal.parse(Cereal.stringify({a: {b: x}, c: x})), {a: {b: x}, c: x},
+                       "Deeper shared pointer");
+         });
+
+    test("Encoding/Decoding Cycles",
+         function() {
+             var x, y, z;
+             x = {};
+             x.x = x;
+             deepEqual(Cereal.parse(Cereal.stringify(x)), x,
+                       "Simplest cycle");
+
+             x = {};  y = {};  z = {};
+             x.a = x; y.a = x; z.a = x;
+             x.b = y; y.b = y; z.b = y;
+             x.c = z; y.c = z; z.c = z;
+             deepEqual(Cereal.parse(Cereal.stringify(x)), x,
+                       "Multiple simple cycles");
+
+             x = {a: {b: {c: {}}}};
+             x.b = x;
+             x.a.c = x;
+             x.a.b.d = x;
+             x.a.b.c.d = x;
+             deepEqual(Cereal.parse(Cereal.stringify(x)), x,
+                      "Cascading cycles");
+
+         });
+
+});
+
+</script>
+
+</head>
+
+<body>
+  <h1 id="qunit-header">Cereal Unit tests</h1>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+  <div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+
+</body>
+</html>
