@@ -1,8 +1,10 @@
 # Cereal
 
-Serialisation Library for JavaScript that respects object aliases.
+Serialisation Library for JavaScript that respects object aliases and
+can cope with cycles in the object graph.
 
 Can be used either client-side or in NodeJS.
+
 
 ## What does it solve?
 
@@ -28,6 +30,21 @@ JSON can't cope with cyclical data structures. Cereal can.
 
 JSON will blow up if you try to `stringify(x)`. Cereal will work
 correctly.
+
+
+## Requirements
+
+Currently it relies on either
+[Map](http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets)
+or [WeakMap](http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps)
+being available. If running in NodeJS, you'll need to start node with
+`node --harmony-collections` (and compile node correctly). This also
+limits browser support to Chrome 17 or Firefox 8, or better.
+
+This requirement is likely to go away in the future: it is possible to
+achieve the required functionality without using these exotic
+features.
+
 
 ## Anything else?
 
