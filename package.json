@@ -1,8 +1,11 @@
 {
-        "name": "cereal",
-        "author": "Matthew Sackman",
-        "version": "0.0.2",
-        "repository": {"type": "git",
-                       "url": "https://github.com/atomizejs/cereal.git"},
-        "main": "index"
+    "name": "cereal",
+    "author": "Matthew Sackman",
+    "version": "0.0.3",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/atomizejs/cereal.git"
+    },
+    "main": "index",
+    "description": "Serialisation library for JavaScript that understands object graphs"
 }
