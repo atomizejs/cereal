@@ -119,36 +119,37 @@ $(document).ready(function(){
              deepEqual(Cereal.parse(Cereal.stringify({a: {}, b: {}})), {a: {}, b: {}},
                        "Less simple nested object");
              var x = {};
-             deepEqual(Cereal.parse(Cereal.stringify({a: x, b: x})), {a: x, b: x},
+             var y = {};
+             deepEqual(Cereal.parse(Cereal.stringify({a: x, b: x})), {a: y, b: y},
                        "Simplest shared object");
              x.z = "foo";
-             deepEqual(Cereal.parse(Cereal.stringify({a: {b: x}, c: x})), {a: {b: x}, c: x},
+             y.z = "foo";
+             deepEqual(Cereal.parse(Cereal.stringify({a: {b: x}, c: x})), {a: {b: y}, c: y},
                        "Deeper shared pointer");
          });
 
     test("Encoding/Decoding Cycles",
          function() {
-             var x, y, z;
-             x = {};
-             x.x = x;
-             deepEqual(Cereal.parse(Cereal.stringify(x)), x,
+             var x1, y1, z1, x2, y2, z2;
+             x1 = {};     x2 = {};
+             x1.x = x1;   x2.x = x2;
+             deepEqual(Cereal.parse(Cereal.stringify(x1)), x2,
                        "Simplest cycle");
 
-             x = {};  y = {};  z = {};
-             x.a = x; y.a = x; z.a = x;
-             x.b = y; y.b = y; z.b = y;
-             x.c = z; y.c = z; z.c = z;
-             deepEqual(Cereal.parse(Cereal.stringify(x)), x,
+             x1 = {};   y1 = {};   z1 = {};     x2 = {};   y2 = {};   z2 = {};
+             x1.a = x1; y1.a = x1; z1.a = x1;   x2.a = x2; y2.a = x2; z2.a = x2;
+             x1.b = y1; y1.b = y1; z1.b = y1;   x2.b = y2; y2.b = y2; z2.b = y2;
+             x1.c = z1; y1.c = z1; z1.c = z1;   x2.c = z2; y2.c = z2; z2.c = z2;
+             deepEqual(Cereal.parse(Cereal.stringify(x1)), x2,
                        "Multiple simple cycles");
 
-             x = {a: {b: {c: {}}}};
-             x.b = x;
-             x.a.c = x;
-             x.a.b.d = x;
-             x.a.b.c.d = x;
-             deepEqual(Cereal.parse(Cereal.stringify(x)), x,
+             x1 = {a: {b: {c: {}}}};   x2 = {a: {b: {c: {}}}};
+             x1.b = x1;                x2.b = x2;
+             x1.a.c = x1;              x2.a.c = x2;
+             x1.a.b.d = x1;            x2.a.b.d = x2;
+             x1.a.b.c.d = x1;          x2.a.b.c.d = x2;
+             deepEqual(Cereal.parse(Cereal.stringify(x1)), x2,
                       "Cascading cycles");
-
          });
 
 });
