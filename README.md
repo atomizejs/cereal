@@ -35,13 +35,13 @@ correctly.
 ## Anything else?
 
 JSON invokes `toJSON` on an object before encoding it. Analogously to
-this, Cereal invokes invoking a `cerealise` function if it exists and
-encoding what is returned from that.
+this, Cereal invokes a `cerealise` function if it exists and encodes
+what is returned from that.
 
 Note that Cereal first rewrites the object structure to something
 without loops or aliases (but from which the loops and aliases can be
 reconstructed) and then it just uses normal JSON encoding on the
-result. And vice-versa.
+result, and vice-versa.
 
 As a result, Cereal will ignore everything that JSON would ignore
 too. Thus as normal, you lose functions, prototypes etc etc.
