@@ -1,7 +1,7 @@
 # Cereal
 
-Serialisation Library for JavaScript that respects object aliases and
-can cope with cycles in the object graph.
+Serialisation Library for JavaScript that respects object aliases,
+copes with cycles in the object graph, and understands `undefined`.
 
 Can be used either client-side or in NodeJS.
 
