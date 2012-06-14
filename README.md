@@ -1,7 +1,8 @@
 # Cereal
 
 Serialisation Library for JavaScript that respects object aliases,
-copes with cycles in the object graph, and understands `undefined`.
+copes with cycles in the object graph, understands `undefined`, and
+can cope with arrays that have arbitrary properties.
 
 Can be used either client-side or in NodeJS.
 
@@ -30,6 +31,26 @@ JSON can't cope with cyclical data structures. Cereal can.
 
 JSON will blow up if you try to `stringify(x)`. Cereal will work
 correctly.
+
+### Undefined
+
+JSON can't represent `undefined`. Cereal can.
+
+     var x = {a: undefined};
+
+`JSON.parse(JSON.stringify(x))` will yield `{}`. Cereal will get it
+right.
+
+### Array fields
+
+JSON thinks arrays can't have arbitrary properties, and will drop
+them. Cereal won't.
+
+      var x = [5];
+      x.foo = true;
+
+`JSON.parse(JSON.stringify(x))` will yield `[5]`. Cereal will get it
+right.
 
 
 ## Anything else?
